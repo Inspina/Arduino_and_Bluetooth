@@ -1,0 +1,47 @@
+//Use the same baud rate of the Bluetooth module (9600 bits per second is the default)
+#define BAUD_RATE 9600
+
+//Include the SoftwareSerial Arduino library so that we can choose which pins to use as the TX and RX pins
+#include <SoftwareSerial.h>
+
+//Pin2 and Pin3 are the TX and RX pins used in this example. These pins are connected to the Bluetooth modules TX and RX pins 
+SoftwareSerial Bluetooth(2,3);
+
+//String variables to temporarily store the data being sent and received by the Arduino
+String incomingData, outgoingData; 
+
+
+void setup() {
+  //Initialize serial communication with the computer's COM port (only necessery if you wish Arduino to communicate with the computer)
+  Serial.begin(BAUD_RATE); 
+  
+  //Initialize serial communication with the Bluetooth module
+  Bluetooth.begin(BAUD_RATE); 
+}
+
+void loop() {
+
+  //If Arduino receives a value from the Bluetooth module, we will insert that value into the incomingData String variable
+  while (Bluetooth.available() > 0)  {
+    incomingData += char(Bluetooth.read());
+    delay(2);
+  }
+
+  //If the incomingData variable has a value, we will print it to the computers COM port, this can be viewed on the Arduino IDEs Serial Monitor
+  if(incomingData.length() > 0) {
+    Serial.print(incomingData);
+    //After printing we clear the data in the incomingData variable
+    incomingData = "";
+  }
+  
+  while (Serial.available() > 0)  {
+    outgoingData += char(Serial.read());
+    delay(2);
+  }
+
+  if(outgoingData.length() > 0) {
+    Bluetooth.print(outgoingData);
+    outgoingData = "";
+  }
+  
+}
